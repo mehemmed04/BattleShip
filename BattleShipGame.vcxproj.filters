@@ -26,8 +26,5 @@
     <ClInclude Include="Start.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WarFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
