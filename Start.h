@@ -8,12 +8,21 @@ void Start() {
 	while (true)
 	{
 		
-		/*cout << "\t\t\t\t\t\tBATTLESHIP GAME" << endl;
-		cout << "\n\n\n\n\n\n\n\n";
-		cout << "\t\t\t\t\t\t  GAME 1 :" << endl;
-		cout << "\t\t\t\t\t\t  RULES 2 :" << endl;
-		cout << "\t\t\t\t\t\t  EXIT 0 :" << endl;
-		cout << "\t\t\t\t\t\t     ";*/
+		for (size_t i = 0; i < 11; i++)
+		{
+			for (size_t k = 0; k < 11; k++)
+			{
+				if (i == 0) game[i][k] = 9;
+				else if (k == 0) game[i][k] = 9;
+				else {
+					game[i][k] = 0;
+					computer[i][k] = 0;
+				}
+			}
+		}
+		int PlayerShipCount = 20;
+		int ComputerShipCount = 20;
+
 		ShowMenu();
 		int select = 0;
 		cin >> select;

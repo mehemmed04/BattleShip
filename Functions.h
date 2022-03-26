@@ -1,9 +1,9 @@
 #pragma once
-#pragma once
 #include<iostream>
 #include<Windows.h>
+#include<conio.h>
 using namespace std;
-
+int AI[2]{ 0,0 };
 enum colors { blue = 1, green = 2, red = 4, yellow = 6, white = 7  };
 void mysetcolor(int fg, int bg) {
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -16,7 +16,26 @@ int computer[11][11]{};
 int PlayerShipCount = 20;
 int ComputerShipCount = 20;
 
+
+
+
 void ShowRules() {
+	HANDLE Hout = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD fsize = { 8,8 };
+	CONSOLE_FONT_INFOEX Font = { sizeof( Font ) };
+	GetCurrentConsoleFontEx(Hout, 0, &Font);
+
+	//My Code to check the problem...............................
+	cout << Font.dwFontSize.X << ' ' << Font.dwFontSize.Y; 
+	//...........................................................
+
+	Font.dwFontSize = fsize;
+	Font.dwFontSize.X = 100;
+	Font.dwFontSize.Y = 100;
+	SetCurrentConsoleFontEx(Hout, 0, &Font);
+	//std::cout << "!Test Text!";
+	//getch();
+
 	mysetcolor(blue, 0);
 	cout << "\t\t\t\t\tRULES OF THE GAME" << endl;
 	cout << "\n";
@@ -280,7 +299,7 @@ void SetCarrier(int& CarrierCounter) {
 	char y;
 	cin >> y;
 	y = toupper(y);
-	cout << "enter destination : right(r), left(l) , up(u), bottom(b) : ";
+	cout << "enter destination : right(r), left(l) , up(u), down(d) : ";
 	char d;
 	cin >> d;
 
@@ -307,7 +326,7 @@ void SetBattleship(int& BattleShipCounter) {
 	char y;
 	cin >> y;
 	y = toupper(y);
-	cout << "enter destination : right(r), left(l) , up(u), bottom(b) : ";
+	cout << "enter destination : right(r), left(l) , up(u), down(d) : ";
 	char d;
 	cin >> d;
 
@@ -403,7 +422,7 @@ void GetShipsManual() {
 		if (Bcount != 2) { cout << "\nBattleShip ->"; ShowShip(3, 2 -Bcount); cout << " (b)"; }
 		if (Rcount != 2) { cout << "\nCruiser    ->"; ShowShip(2,3- Rcount); cout << " (d)"; }
 		if (Dcount != 4) { cout << "\nDestroyer  ->"; ShowShip(1,4-Dcount); cout << " (c)"; }
-		cout << "Enter Ship Name : ";
+		cout << "\nEnter Ship Name : ";
 		cin >> ShipName;
 		ShipName = tolower(ShipName);
 		if (ShipName == 'c') {
@@ -610,7 +629,7 @@ bool isEmptyComp(const int& x, const char& y1, const int& c, const char& d) {
 		else return false;
 	}
 	/*------------------------------------------*/
-	else if (d == 'b') {
+	else if (d == 'd') {
 		if (y + c <= 11) {
 
 			for (size_t i = 0; i < c; i++)
@@ -720,8 +739,8 @@ void GetShipsAutoComputer() {
 			SetShipComp(x, y, 4, 'u');
 			Ccount++;
 		}
-		else if (isEmptyComp(x, y, 4, 'b')) {
-			SetShipComp(x, y, 4, 'b');
+		else if (isEmptyComp(x, y, 4, 'd')) {
+			SetShipComp(x, y, 4, 'd');
 			Ccount++;
 		}
 	}
@@ -743,8 +762,8 @@ void GetShipsAutoComputer() {
 			SetShipComp(x, y, 3, 'u');
 			Bcount++;
 		}
-		else if (isEmptyComp(x, y, 3, 'b')) {
-			SetShipComp(x, y, 3, 'b');
+		else if (isEmptyComp(x, y, 3, 'd')) {
+			SetShipComp(x, y, 3, 'd');
 			Bcount++;
 		}
 	}
@@ -765,8 +784,8 @@ void GetShipsAutoComputer() {
 			SetShipComp(x, y, 2, 'u');
 			Rcount++;
 		}
-		else if (isEmptyComp(x, y, 2, 'b')) {
-			SetShipComp(x, y, 2, 'b');
+		else if (isEmptyComp(x, y, 2, 'd')) {
+			SetShipComp(x, y, 2, 'd');
 			Rcount++;
 		}
 	}
@@ -793,6 +812,13 @@ bool IsBurst(const int&x,const int&y) {
 	return true;
 }
 
+bool IsBurstComp(const int& x, const int& y) {
+
+	if (game[y][x + 1] == 1 || game[y][x - 1] == 1 || game[y - 1][x] == 1 || game[y + 1][x] == 1) {
+		return false;
+	}
+	return true;
+}
 
 
 
@@ -901,6 +927,7 @@ void PlayerHitShips() {
 
 					}
 					else {
+						HasShot = false;
 						computer[y + 1][x + 1] = 3;
 						Show();
 						PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
@@ -918,6 +945,141 @@ void PlayerHitShips() {
 	} while (HasShot);
 }
 
+//void GORIGHT(int x,int y) {
+//	if (game[y][x + 1] == 0) {
+//		if (game[y][x + 1] == 1) {
+//			PlayerShipCount--;
+//			game[y][x + 1] = 4;
+//			if (IsBurst(x, y)) {
+//				PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+//				AI[0] = 0;
+//				AI[1] = 0;
+//			}
+//			else {
+//				GORIGHT(x, y);
+//				cout << "\a";
+//				Sleep(1000);
+//			}
+//		}
+//	}
+//}
+
+
+void ArtificialIntelligent(bool& HasShot) {
+	int x = AI[0] + 1;
+	int y = AI[1] + 1;
+
+	if (game[y][x + 1] ==0 || game[y][x + 1] ==2 || game[y][x + 1] == 1) {
+		if (game[y][x + 1] == 1) {
+			PlayerShipCount--;
+			game[y][x + 1] = 4;
+			Show();
+			if (IsBurstComp(x, y)) {
+				PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+				AI[0] = 0;
+				AI[1] = 0;
+			}
+			else {
+				AI[0] = x;
+				AI[1] = y - 1;
+				cout << "\a";
+				Sleep(1000);
+			}
+			HasShot = true;
+		}
+		else {
+			HasShot = false;
+			game[y][x + 1] = 3;
+			Show();
+			PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
+		}
+	}
+
+	else if (game[y][x - 1] ==0 || game[y][x - 1] == 2 || game[y][x - 1] == 1) {
+		if (game[y][x - 1] == 1) {
+			PlayerShipCount--;
+			game[y][x - 1] = 4;
+			Show();
+			if (IsBurstComp(x, y)) {
+				AI[0] = 0;
+				AI[1] = 0;
+				PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+			}
+			else {
+				AI[0] = x - 2;
+				AI[1] = y - 1;
+				cout << "\a";
+				Sleep(1000);
+			}
+			HasShot = true;
+		}
+		else {
+			HasShot = false;
+			game[y][x - 1] = 3;
+			Show();
+			PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
+		}
+	}
+
+	else if (game[y - 1][x] == 0 || game[y - 1][x] == 2 || game[y - 1][x] == 1) {
+		if (game[y - 1][x] == 1) {
+			PlayerShipCount--;
+			game[y - 1][x] = 4;
+			Show();
+			if (IsBurstComp(x, y)) {
+				AI[0] = 0;
+				AI[1] = 0;
+				PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+			}
+			else {
+				AI[0] = x - 1;
+				AI[1] = y - 2;
+				cout << "\a";
+				Sleep(1000);
+			}
+			HasShot = true;
+		}
+		else {
+			HasShot = false;
+			game[y - 1][x] = 3;
+			Show();
+			PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
+		}
+	}
+
+	else if (game[y + 1][x] == 0 || game[y + 1][x] ==2 || game[y + 1][x] == 1) {
+		if (game[y + 1][x] == 1) {
+			PlayerShipCount--;
+			game[y + 1][x] = 4;
+			Show();
+			if (IsBurstComp(x, y)) {
+				AI[0] = 0;
+				AI[1] = 0;
+				PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+			}
+			else {
+				AI[0] = x - 1;
+				AI[1] = y;
+				cout << "\a";
+				Sleep(1000);
+			}
+			HasShot = true;
+		}
+		else {
+			HasShot = false;
+			game[y + 1][x] = 3;
+			Show();
+			PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
+		}
+	}
+	else {
+		HasShot = false;
+		AI[0] = 0;
+		AI[1] = 0;
+		return;
+	}
+}
+
 
 
 void ComputerHitShips() {
@@ -931,35 +1093,47 @@ void ComputerHitShips() {
 		HasShot = false;
 		int x = 0;
 		int y = 0;
-		x = 0 + rand() % (10 - 0); //1
-		y = 0 + rand() % (10 - 0); //I
+		if (AI[0] == 0 && AI[1] == 0) {
+			x = 0 + rand() % (10 - 0);
+			y = 0 + rand() % (10 - 0);
 
-		if (game[y + 1][x + 1] != 3 && game[y + 1][x + 1] != 4) {
-			if (game[y + 1][x + 1] == 1) {
-				HasShot = true;
-				PlayerShipCount--;
-				game[y + 1][x + 1] = 4;
-				if (IsBurst(x + 1, y + 1)) {
-					Show();
-					PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+			if (game[y + 1][x + 1] != 3 && game[y + 1][x + 1] != 4) {
+				if (game[y + 1][x + 1] == 1) {
+					AI[0] = x;
+					AI[1] = y;
+					HasShot = true;
+					PlayerShipCount--;
+					game[y + 1][x + 1] = 4;
+					if (IsBurstComp(x + 1, y + 1)) {
+						AI[0] = 0;
+						AI[1] = 0;
+						Show();
+						PlaySound(TEXT("Musics/HitShipSong.wav"), NULL, SND_SYNC);
+					}
+					else {
+						Show();
+						cout << "\a";
+						Sleep(1000);
+						ArtificialIntelligent(HasShot);
+					}
 				}
 				else {
+					game[y + 1][x + 1] = 3;
 					Show();
-					cout << "\a";
-					Sleep(1000);
+					PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
+					HasShot = false;
 				}
+
 			}
 			else {
-				game[y + 1][x + 1] = 3;
-				Show();
-				PlaySound(TEXT("Musics/WaterSound.wav"), NULL, SND_SYNC);
-				HasShot = false;
+				HasShot = true;
 			}
-
 		}
 		else {
-			HasShot = true;
+			ArtificialIntelligent(HasShot);
+
 		}
+
 		Show();
 
 	} while (HasShot);
@@ -996,8 +1170,11 @@ void Hits() {
 
 
 void GAME() {
+
 	while (true)
 	{
+		
+		system("cls");
 		cout << "Auto (1), Manual (2), back (0) : ";
 		int select = 0;
 		cin >> select;
@@ -1023,6 +1200,7 @@ void GAME() {
 		cout << endl;
 		Hits();
 		system("pause");
+		break;
 	}
 }
 
@@ -1061,11 +1239,3 @@ void ShowMenu() {
 	mysetcolor(white, 0);
 	cout << "\t\t\t\t\t\t\t\t\t\t\t     ";
 }
-
-
-
-
-
-
-
-
