@@ -20,21 +20,6 @@ int ComputerShipCount = 20;
 
 
 void ShowRules() {
-	HANDLE Hout = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD fsize = { 8,8 };
-	CONSOLE_FONT_INFOEX Font = { sizeof( Font ) };
-	GetCurrentConsoleFontEx(Hout, 0, &Font);
-
-	//My Code to check the problem...............................
-	cout << Font.dwFontSize.X << ' ' << Font.dwFontSize.Y; 
-	//...........................................................
-
-	Font.dwFontSize = fsize;
-	Font.dwFontSize.X = 100;
-	Font.dwFontSize.Y = 100;
-	SetCurrentConsoleFontEx(Hout, 0, &Font);
-	//std::cout << "!Test Text!";
-	//getch();
 
 	mysetcolor(blue, 0);
 	cout << "\t\t\t\t\tRULES OF THE GAME" << endl;
